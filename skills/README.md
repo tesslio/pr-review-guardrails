@@ -8,6 +8,8 @@ AI code review comments get adopted 1-19% of the time. Human reviewer comments l
 
 This plugin doesn't try to be a better bug finder. It builds an evidence pack about the PR, classifies the risk into lanes, and produces a structured brief so the human reviewer can focus on the questions only a human can answer.
 
+The design is grounded in the [Cross-model AI PR Review Research Brief](https://github.com/tesslio/pr-review-guardrails/blob/main/Cross-model%20AI%20PR%20Review%20Brief.md) and the [PR Review Guardrails Spec](https://github.com/tesslio/pr-review-guardrails/blob/main/PR%20Review%20Guardrails%20Spec.md).
+
 ## The pipeline
 
 ![Pipeline: PR Diff flows through Evidence Builder (risk classification), Fresh-Eyes Reviewer, optional Challenger, Synthesizer, Human Handoff, and Retrospective](pipeline.svg)
