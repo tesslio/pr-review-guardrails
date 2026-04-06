@@ -14,12 +14,6 @@ description: |
 
 Build the evidence pack that powers all downstream review. This skill runs first, always.
 
-## When to use
-
-- A pull request is opened or updated and needs review
-- An author wants preflight feedback before opening a PR
-- Any time the tile is invoked — this skill is the entry point
-
 ## Inputs
 
 - PR diff or branch diff
@@ -29,11 +23,7 @@ Build the evidence pack that powers all downstream review. This skill runs first
 
 ## Critical: always produce output
 
-The pipeline steps below are best-effort guidance, not a mandatory sequential gate. If any step fails or is not possible (missing tools, API errors, permission issues), skip it and proceed with the next step. **You must always produce a review with findings, even if some pipeline steps could not be completed.** A partial evidence pack with a good review is infinitely better than no output. Never spend more than a few attempts on a failing step — move on.
-
-**Write output early and incrementally.** Do not accumulate all findings in memory and write them at the end. Write your evidence pack and review findings to output files as soon as you have them — even partial results. A partial review is infinitely better than no review.
-
-**Failure mode:** If you reach the end of the pipeline and have not written any output files, you have failed. Before that happens — at minimum write the evidence pack JSON with whatever data you have, and the review markdown with whatever findings you have. Even a review that says "evidence pack construction partially failed; here are findings from manual diff reading" is a success. An empty output directory is always a failure.
+The pipeline steps below are best-effort guidance. If any step fails or is not possible (missing tools, API errors, permission issues), skip it and proceed. **You must always produce a review with findings, even if some pipeline steps could not be completed.** Write output early and incrementally. An empty output directory is always a failure — at minimum write the evidence pack JSON and a review markdown with whatever findings you have.
 
 ## Steps
 
@@ -42,8 +32,8 @@ Perform each step using available tools (gh CLI, git, file reading, etc.). If a 
 1. **Check diff size.** Count the total lines changed. If the diff exceeds 1,000 lines changed, surface a blocker: "this PR is too large for effective review — consider splitting into smaller PRs." Still run verifiers and produce a partial evidence pack, but skip the AI review passes (fresh-eyes, challenger). If the diff is between 500–1,000 lines, note the size as a risk factor but proceed.
 
 2. **Collect PR context.** Using `gh` and `git` commands, gather:
-   - PR title, description, labels, and linked issues
-   - Diff metadata: files changed, insertions, deletions, renames
+   - PR title, description, labels, and linked issues — e.g., `gh pr view $PR --json title,body,labels,files`
+   - Diff metadata: files changed, insertions, deletions, renames — e.g., `git diff --stat origin/main...HEAD`
    - Touched files with change type (added, modified, deleted, renamed)
    - Subsystem clusters inferred from directory structure or CODEOWNERS
    - Related test files (by naming convention: `foo.py` → `test_foo.py`)
@@ -53,8 +43,8 @@ Perform each step using available tools (gh CLI, git, file reading, etc.). If a 
    If GitHub API is unreachable, produce a partial evidence pack from local git data. Mark unavailable fields as null.
 
 3. **Run deterministic verifiers.** Discover and invoke repo-native tools that are present:
-   - Test runner (from package.json, pyproject.toml, Makefile, go.mod, Cargo.toml)
-   - Type checker (tsc, mypy, pyright)
+   - Test runner (from package.json, pyproject.toml, Makefile, go.mod, Cargo.toml) — e.g., `jq -r '.scripts.test' package.json` to find the test command, then `timeout 60 npm test 2>&1` to run it
+   - Type checker (tsc, mypy, pyright) — e.g., `timeout 60 npx tsc --noEmit 2>&1`
    - Linter (eslint, ruff, golangci-lint, clippy)
    - Static analysis (semgrep, bandit, gosec)
    - Secret scanner (gitleaks, trufflehog)
@@ -63,29 +53,30 @@ Perform each step using available tools (gh CLI, git, file reading, etc.). If a 
 
    Capture each verifier's status (pass/fail/warn/skipped/timeout) and findings. Enforce a 60-second timeout per verifier. If no verifiers are discovered, note this and proceed.
 
-4. **Classify risk.** Assign a risk lane based on what the PR touches:
-   - **Green:** docs-only, test-only, safe renames (even in sensitive directories — if every change is purely a rename or import reorder with no logic change, it is green), formatting
-   - **Yellow:** business logic, moderate refactors, non-public API changes, config with bounded blast radius, **refactors of auth/permission code that do not change the effective access policy** (e.g., reorganizing permission checks, renaming guards, switching between semantically equivalent implementations — classify as yellow, not red, if you verify the access policy is preserved by reading call sites)
-   - **Red:** auth/permissions changes that **alter who can access what**, migrations, public API changes, infra/deploy, secrets/trust boundaries, concurrency, cache invalidation (especially when caching authorization-relevant data like roles or permissions), rollout/feature flags, multi-subsystem changes
+4. **Classify risk.** Assign a risk lane based on what the PR touches. Check for repo-specific overrides in `.pr-review/risk-overrides.json`. Check the PR description for an explicit risk override (`risk: red`) — overrides can escalate only, never downgrade. When confidence is low, round UP to the next higher lane.
 
-   **Auth risk classification requires call-site analysis.** Do not classify a PR as red solely because it touches permission-checking code. Read the call sites to determine whether the effective access policy changed. A function that switches from `every()` to `some()` on a role array changes behavior — but if every call site passes OR-style role lists (e.g., `['admin', 'manager']`), then `some()` is the correct semantic and the change is a bug fix, not a regression. Classify based on whether the access policy actually changed, not on whether the code is in an auth-related file.
+   | Lane | Applies when |
+   |------|-------------|
+   | **Green** | Docs-only, test-only, safe renames, formatting. Pure renames/import reorders with no logic change are green even in sensitive directories. |
+   | **Yellow** | Business logic, moderate refactors, non-public API changes, config with bounded blast radius. Auth/permission refactors that do **not** alter the effective access policy (e.g., reorganizing checks, renaming guards, switching between semantically equivalent implementations) — classify yellow, not red, when call-site analysis confirms the access policy is preserved. |
+   | **Red** | Auth/permission changes that **alter who can access what**, migrations, public API changes, infra/deploy, secrets/trust boundaries, concurrency, cache invalidation (especially when caching authorization-relevant data), rollout/feature flags, multi-subsystem changes. |
 
-   When confidence is low, round UP to the next higher lane. Check for repo-specific overrides in `.pr-review/risk-overrides.json`. Check the PR description for explicit risk override (`risk: red`) — overrides can escalate only, never downgrade.
+   **Auth risk requires call-site analysis.** Do not classify a PR as red solely because it touches permission-checking code. Read the call sites to determine whether the effective access policy changed. For example, a switch from `every()` to `some()` on a role array changes behavior — but if every call site passes OR-style role lists, `some()` is the correct semantic and the change is a bug fix, not a regression. Classify based on whether the access policy actually changed.
 
-5. **Map hotspots.** Scan the diff for attention-worthy patterns:
+5. **Map hotspots.** Scan the diff for attention-worthy patterns and flag each occurrence:
    - Permission/authorization checks
    - Serialization boundaries (JSON, protobuf, API shaping)
    - Null/error handling (catch blocks, nil checks, Optional)
    - Retries and timeouts
-   - Cache invalidation — especially when cached data includes authorization-relevant fields (roles, permissions, access levels, scopes). Caching authorization state creates a window where revocation or downgrade is invisible.
+   - Cache invalidation — especially when cached data includes authorization-relevant fields (roles, permissions, access levels, scopes), which creates a window where revocation or downgrade is invisible
    - Feature flag checks
    - Data migrations and schema changes
    - SQL or query construction (especially dynamic/interpolated queries)
    - Cryptographic operations
    - External service calls
-   - Output encoding — CSV generation, spreadsheet exports, file downloads where user data reaches cells that can be interpreted as formulas
-   - Shared resource contention — health checks that acquire DB pool connections, in-memory state (dedup sets, caches) in multi-process deployments, connection pool sizing under concurrent load
-   - Infrastructure lifecycle — storage tier transitions (Glacier, archive tiers with retrieval delays), backup retention policies, availability zone placement, replication configuration
+   - Output encoding — CSV/spreadsheet exports where user data can reach cells interpreted as formulas
+   - Shared resource contention — health checks acquiring DB pool connections, in-memory state in multi-process deployments, connection pool sizing under concurrent load
+   - Infrastructure lifecycle — storage tier transitions, backup retention policies, availability zone placement, replication configuration
 
 6. **Check required artifacts.** Based on the risk lane, flag missing items:
    - **Green:** PR description recommended but not required

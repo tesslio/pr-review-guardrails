@@ -8,13 +8,6 @@ description: |
 
 Evaluate code review comment (tile) effectiveness by collecting post-review outcomes passively from GitHub and git.
 
-## When to use
-
-- After a reviewed PR has been merged or closed
-- When evaluating review tile effectiveness across a corpus of pull requests
-- When analyzing code review results or post-merge feedback
-- On demand: "how did PR #6 go?", "which review comments were accepted?", "were there any escaped defects?"
-
 ## Inputs
 
 - PR number and repository (`owner/repo`)
@@ -30,7 +23,6 @@ Evaluate code review comment (tile) effectiveness by collecting post-review outc
 - Suggested change committed → accepted with exact fix
 - Reply disagreeing with finding → rejected (capture reply text for eval)
 
-**Example — fetch and parse resolution status:**
 ```bash
 gh api repos/{owner}/{repo}/pulls/{pr}/comments \
   --jq '[.[] | {id: .id, body: .body, resolved: (.pull_request_review_id != null), author: .user.login}]'
@@ -40,11 +32,10 @@ Check each comment's thread: if the thread is marked resolved via the GraphQL `i
 ### From PR timeline
 `gh api repos/{owner}/{repo}/issues/{pr}/timeline`
 
-- Time from tile comment to merge → review overhead signal
-- Number of review rounds after tile comments → iteration cost
-- PR closed without merge → possible tile-induced abandonment (flag for review)
+- Time from tile comment to merge
+- Number of review rounds after tile comments
+- PR closed without merge → flag for review
 
-**Example — extract merge timestamp:**
 ```bash
 gh api repos/{owner}/{repo}/issues/{pr}/timeline \
   --jq '[.[] | select(.event == "merged") | {merged_at: .created_at, actor: .actor.login}]'
@@ -56,7 +47,6 @@ gh api repos/{owner}/{repo}/issues/{pr}/timeline \
 - Issues opened referencing the merged PR → candidate escaped defects
 - Bug labels on those issues → confirmed escaped defects
 
-**Example — filter for confirmed bugs:**
 ```bash
 gh api "search/issues?q=repo:{owner}/{repo}+linked:{pr}" \
   --jq '[.items[] | select(.labels[].name | test("bug|defect"; "i")) | {number: .number, title: .title, labels: [.labels[].name]}]'
@@ -72,7 +62,7 @@ git log --format='%(trailers)' origin/main..{merge_sha}
 
 ## Steps
 
-1. **Collect outcome data.** Query all data sources above using the commands provided. No manual input required. If an API call returns an empty array, record `null` for that signal rather than failing — partial data is valid.
+1. **Collect outcome data.** Query all data sources above using the commands provided. If an API call returns an empty array, record `null` for that signal rather than failing — partial data is acceptable.
 
 2. **Validate API responses.** Before mapping, confirm:
    - PR comments response contains at least the fields `id`, `body`, `pull_request_review_id`
@@ -114,14 +104,6 @@ git log --format='%(trailers)' origin/main..{merge_sha}
    ```
 
 5. **Verify outcome mapping completeness.** Confirm every finding ID from the original review appears in the `findings` array. Log any finding that could not be matched to a comment as `disposition: "unmatched"` — do not silently drop it.
-
-## Captured outcomes
-
-- Finding accepted / rejected / ignored / superseded / unmatched
-- Whether the human fixed the exact issue or an alternative issue
-- Merge time delta (hours from first tile comment to merge)
-- Escaped defects (from post-merge linked issues with bug labels)
-- AI authorship correlation (`Co-Authored-By` trailers)
 
 ## Success criteria
 

@@ -8,57 +8,25 @@ description: |
 
 Build the final reviewer packet that a human reviewer actually reads.
 
-## When to use
+## When to use and inputs
 
-- After `finding-synthesizer` has produced the ranked finding set
-- For high-risk and medium-risk PRs (always)
-- For low-risk PRs (when findings exist)
-
-## Inputs
-
-- Synthesized findings from `finding-synthesizer`
-- Evidence pack from `pr-evidence-builder`
+After `finding-synthesizer` has produced the ranked finding set — always for medium/high-risk PRs, and for low-risk PRs when findings exist. Consumes synthesized findings from `finding-synthesizer` and the evidence pack from `pr-evidence-builder`.
 
 ## Steps
 
-1. **Build the reviewer packet** using the packet structure below. Generate the packet inline from the synthesized findings and evidence pack — do not rely on an external script. Use the inputs to populate each section directly.
+1. **Build the reviewer packet** using the packet structure below.
 
 ### Packet structure
 
-```
-## PR Review Packet
-### TL;DR
-[1-2 sentence summary: what changed, risk lane, top concern if any]
+The packet contains these sections (see the example output for exact formatting):
 
-### Risk: [LOW | MEDIUM | HIGH]
-Contributing factors: [bulleted list]
-AI-assisted: [yes/no, tools detected]
-
-### Verification Status
-[table: verifier name | status | notable findings]
-
-### Findings ([N] items)
-[ordered by severity x confidence]
-Each finding:
-  - title
-  - file:line
-  - why it matters
-  - evidence type and source
-  - suggested action: fix | verify | discuss
-
-### Unresolved Assumptions
-[things the tile couldn't determine -- questions for the human]
-
-### Recommended Review Focus
-[specific files/hunks where human attention is most needed and why]
-
-### Metadata
-- reviewer mode: fresh_eyes | challenger | aggregated
-- reviewer model family
-- authoring model family (if detected)
-- wall-clock time
-- context isolation: yes/no
-```
+- **TL;DR** — 1–2 sentence summary: what changed, risk lane, top concern if any
+- **Risk** — LOW / MEDIUM / HIGH with contributing factors and AI-assisted flag
+- **Verification Status** — table: verifier name | status | notable findings
+- **Findings** — ordered by severity × confidence; each entry includes title, file:line, why it matters, evidence type/source, and suggested action (fix | verify | discuss)
+- **Unresolved Assumptions** — things the review couldn't determine; questions for the human
+- **Recommended Review Focus** — specific files/hunks where human attention is most needed and why
+- **Metadata** — reviewer mode, reviewer model family, authoring model family (if detected), wall-clock time, context isolation
 
 ### Example output (abbreviated)
 
@@ -67,8 +35,8 @@ Each finding:
 
 ### TL;DR
 Adds OAuth2 token refresh logic to `auth/session.py`; risk is MEDIUM due to
-token-expiry edge cases identified in the session handler. No critical findings,
-but one unresolved assumption about clock-skew tolerance requires human input.
+token-expiry edge cases. One unresolved assumption about clock-skew tolerance
+requires human input.
 
 ### Risk: MEDIUM
 Contributing factors:
@@ -137,10 +105,3 @@ findings and questions. Humans produce decisions.*
 
 - **`finding-synthesizer`** — produces the ranked finding set consumed by this skill
 - **`pr-evidence-builder`** — produces the evidence pack consumed by this skill
-
-## Success criteria
-
-- Human reviewer can understand where to spend attention quickly
-- Low-risk packet scannable in under 30 seconds
-- High-risk packet scannable in under 2 minutes
-- Packet makes human review faster without pretending to replace it
