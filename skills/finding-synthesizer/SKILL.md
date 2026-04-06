@@ -18,9 +18,8 @@ Merge, deduplicate, and rank all candidate findings into a compact set worth a h
 
 ## When to use
 
-- After [`fresh-eyes-review`] and optionally [`challenger-review`] have produced candidate findings
-- Before [`human-review-handoff`]
-- **Skip this step entirely if there is only one review source with fewer than 5 findings** — pass findings directly to handoff. Synthesis adds value when merging multiple sources or pruning a large finding set, not when reformatting a short list.
+- After `fresh-eyes-review` and optionally `challenger-review` have produced candidate findings, and before `human-review-handoff`
+- **Skip if there is only one review source with fewer than 5 findings** — pass findings directly to handoff. Synthesis adds value when merging multiple sources or pruning a large set.
 
 ## Inputs
 
@@ -28,9 +27,7 @@ Merge, deduplicate, and rank all candidate findings into a compact set worth a h
 - Candidate findings from `challenger-review` (if it ran)
 - Verifier findings from the evidence pack
 
-### Example input finding (JSON)
-
-Each source produces findings in this shape:
+Each finding is one JSON object. Example:
 
 ```json
 {
@@ -45,8 +42,6 @@ Each source produces findings in this shape:
   "verification_support": 3
 }
 ```
-
-Multiple such objects (one per finding, across all sources) form the input list to the synthesis steps below.
 
 ## Steps
 
@@ -65,11 +60,10 @@ Multiple such objects (one per finding, across all sources) form the input list 
    - Discard weak speculation that doesn't meet the evidence threshold
    - Retain suppressed findings in the data for eval, but do not surface them
 
-4. **Rank survivors** by `severity × confidence × verification_support`.
+4. **Rank survivors** by `severity × confidence × verification_support` (each 1–3).
 
-   Example ranking with sample values:
-   | Finding | Severity (1–3) | Confidence (1–3) | Verification Support (1–3) | Score |
-   |---------|---------------|-----------------|--------------------------|-------|
+   | Finding | Severity | Confidence | Verification Support | Score |
+   |---------|----------|------------|----------------------|-------|
    | SQL injection in login handler | 3 | 3 | 3 | 27 |
    | Unhandled null in parser | 2 | 3 | 2 | 12 |
 

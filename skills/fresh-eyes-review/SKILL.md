@@ -58,29 +58,17 @@ Spend your effort on finding the most important issues, not on being comprehensi
 1. **Read the evidence pack.** Understand what changed, which subsystems are touched, what the risk lane is, what the verifiers found, and where the hotspots are.
 
 2. **Review the raw diff.** Focus attention on hotspots and risk-contributing areas first. Review in this priority order — security issues first, because they are most likely to be high-severity:
-   - Security issues (injection, auth bypass, secret exposure, unsanitized input reaching response headers or logs, CRLF injection, CSV formula injection, output encoding)
-   - Correctness problems (null handling, off-by-one, missing error paths, type mismatches after deserialization)
-   - API misuse or contract violations
-   - Authorization/cache interaction (when caching stores permission-relevant data — roles, access levels, scopes — any revocation or downgrade is invisible until TTL expires)
-   - Resource contention and cascading failures (shared connection pools, thread/process isolation, load balancer feedback loops)
-   - Infrastructure and operational risks (storage tier transitions that break access patterns, replication that doesn't provide HA, missing backups, retention policies set to zero)
-   - Defensive coding gaps
-   - Missing test coverage for changed behavior
-   - Logic that contradicts the stated intent
+   - **Security issues** — injection, auth bypass, secret exposure, unsanitized input reaching response headers/logs, CRLF injection, CSV formula injection, output encoding. Trace every untrusted input flow to every output channel separately; sanitization for one channel does not cover another. Name the specific attack technique in findings (e.g., "CRLF injection / HTTP response splitting", not "header manipulation"; "CSV formula injection via `=cmd` prefix", not "potential injection").
+   - **Correctness problems** — null handling, off-by-one, missing error paths, type mismatches after deserialization. When user-controlled data is parsed from strings (localStorage, cookies, query params) via `JSON.parse` or similar, check whether downstream code assumes specific types — a wrong-type value may silently produce `NaN` or `undefined` rather than throwing.
+   - **API misuse or contract violations**
+   - **Authorization/cache interaction** — when caching stores permission-relevant data (roles, access levels, scopes), revocation is invisible until TTL expires.
+   - **Resource contention and cascading failures** — shared connection pools, thread/process isolation, load balancer feedback loops. Trace the full cascade: resource contention -> external observer reaction -> load redistribution -> wider failure. Check whether in-memory state (dedup sets, caches) works correctly under multi-process deployments.
+   - **Infrastructure and operational risks** — storage tier transitions (e.g., S3 to Glacier breaks on-demand access), replication placement (same-AZ replicas provide no HA), backup retention set to zero, `apply_immediately = true` on production databases, Terraform engine changes that destroy and recreate resources.
+   - **Defensive coding gaps**
+   - **Missing test coverage** for changed behavior
+   - **Logic that contradicts the stated intent**
 
-   When untrusted input (request headers, query params, body fields) flows to any output channel (response headers, logs, database queries, downstream calls, **CSV/spreadsheet exports**, file downloads), trace the full path. Each output channel is a separate potential issue — do not collapse them into one finding. Sanitization that protects one channel does not protect another (e.g., JSON escaping protects log output but does not prevent HTTP header injection via the same value). **If you identify an unsanitized input flow, emit it as a finding** — do not merely mention it in the TL;DR or risk summary. An observation that doesn't become a finding is invisible to downstream synthesis.
-
-   **CSV and spreadsheet output:** When user-controlled data is written to CSV or spreadsheet files, check whether cell values starting with `=`, `+`, `-`, `@`, `\t`, or `\r` are sanitized. Unsanitized values are interpreted as formulas by Excel and Google Sheets, enabling command execution on the user's machine. This is a high-severity injection vulnerability.
-
-   **Infrastructure changes:** When reviewing Terraform, CloudFormation, or infrastructure-as-code, evaluate operational consequences — not just syntactic correctness. Storage tier transitions (e.g., S3 to Glacier) introduce retrieval delays of hours that break on-demand access. Replicas in the same AZ as the primary provide no high-availability benefit — check `availability_zones` to confirm placement differs from the primary. Backup retention set to zero means no point-in-time recovery. `apply_immediately = true` on a production database means changes take effect now rather than during maintenance windows — combined with destructive changes like engine swaps, this is critical. When a Terraform resource has its engine changed (e.g., MySQL to PostgreSQL), Terraform will **destroy and recreate** the resource, deleting all data — this is not an in-place migration. These are concrete defects, not style preferences.
-
-   **Cascading failure chains:** When a new code path acquires a shared resource (DB connection pool, thread pool, file descriptor), trace what happens under contention. Health checks that use the application DB pool compete with request handlers — under load, the health check may fail to acquire a connection, the load balancer marks the instance unhealthy and removes it, shifting traffic to remaining instances and worsening their pool exhaustion. Always trace the full cascade: resource contention → external observer reaction → load redistribution → wider failure. The same pattern applies to resource limit reductions: if memory/CPU limits are cut aggressively, normal load spikes trigger OOM kills → container restarts → traffic shifts to surviving instances → their limits are equally tight → fleet-wide cascading restarts.
-
-   **Process/worker isolation:** When code uses in-memory data structures (sets, maps, caches) for cross-request state like deduplication, check whether the deployment model uses multiple worker processes (gunicorn, uwsgi, PM2 cluster, Kubernetes replicas). Each process has its own memory — an in-memory dedup set only deduplicates within a single process, not across workers. This is a correctness bug, not a performance concern.
-
-   **Name the specific attack:** When reporting a security finding, always name the concrete attack technique, not just the generic risk category. "CRLF injection / HTTP response splitting" is actionable; "header manipulation" is not. "CSV formula injection via `=cmd` prefix" is actionable; "potential injection" is not. Specific attack names let reviewers assess severity and search for mitigation patterns.
-
-   **Deserialization type fidelity:** When user-controlled data is parsed from strings (localStorage, cookies, query params, config files) via `JSON.parse`, `yaml.load`, or similar, check whether downstream code assumes specific types. A successfully-parsed value with the wrong type (string where number expected, null where object expected) may not throw — it silently produces `NaN`, `undefined`, or empty results in distant code paths. This is harder to catch than a parse crash and more dangerous.
+   **If you identify an unsanitized input flow, emit it as a finding** — do not merely mention it in the TL;DR or risk summary. An observation that doesn't become a finding is invisible to downstream synthesis.
 
 3. **Produce candidate findings.** For each issue found, emit a structured finding. Only emit findings that meet the evidence threshold (see validation guidance below).
 
@@ -150,11 +138,9 @@ For green-lane PRs (docs-only, test-only, safe renames, formatting), apply a lig
 
 Before flagging a logic change as a vulnerability, **read the call sites to determine intent**. This is mandatory for any finding about authorization logic changes.
 
-Example: a change from `every()` to `some()` on a role check looks like a permission downgrade in isolation. But if call sites pass role arrays like `['admin', 'manager']` (meaning "admin OR manager can access this"), then `some()` is the correct semantic — `every()` was the bug (it required a user to have BOTH admin AND manager roles simultaneously, which is nonsensical). In this case, the change is a bug fix, not a regression.
+A change from `every()` to `some()` on a role check looks like a permission downgrade in isolation. But if call sites pass role arrays like `['admin', 'manager']` to mean "admin OR manager", then `some()` is correct and `every()` was the bug (it required a user to hold both roles simultaneously). Check every invocation: if arrays represent alternative roles (OR semantics), `some()` is correct; if arrays represent cumulative permissions (AND semantics), `every()` is correct.
 
-**How to check:** Look at every place the permission guard component/function is invoked. If the arrays contain alternative roles (admin/manager, admin/analyst), the semantics are OR and `some()` is correct. If the arrays contain cumulative permissions (read+write, edit+approve), the semantics are AND and `every()` is correct. Do not guess — read the code.
-
-Flagging a correct fix as a security vulnerability is worse than missing a real issue. It is a false positive that erodes reviewer trust and wastes human review time.
+Flagging a correct fix as a security vulnerability is worse than missing a real issue. It erodes reviewer trust and wastes human review time.
 
 ## Success criteria
 
