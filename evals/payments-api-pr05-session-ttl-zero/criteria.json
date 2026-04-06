@@ -1,0 +1,21 @@
+{
+  "context": "Realistic: session_data cache TTL set to 0 means sessions persist in Redis indefinitely — never expire even if auth layer fails to clean up",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches session never-expire risk",
+      "description": "Identifies that TTL=0 for session_data means sessions are stored in Redis with no expiry, creating stale/orphaned sessions if the auth layer fails to explicitly delete them. The comment 'sessions managed by auth layer' provides false reassurance.",
+      "max_score": 15
+    },
+    {
+      "name": "Catches unbounded Redis memory growth",
+      "description": "Identifies that without TTL, orphaned session keys accumulate indefinitely in Redis, leading to unbounded memory growth over time",
+      "max_score": 5
+    },
+    {
+      "name": "Risk classified yellow or higher",
+      "description": "PR touches session/auth cache configuration and should be classified as at least yellow risk",
+      "max_score": 10
+    }
+  ]
+}

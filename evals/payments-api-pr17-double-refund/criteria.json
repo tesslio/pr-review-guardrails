@@ -1,0 +1,16 @@
+{
+  "context": "Realistic: non-transactional refund flow allows double refund under concurrent requests",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches non-transactional refund risk",
+      "description": "Identifies that the refund flow (read payment, check status, issue refund, update status) is not wrapped in a database transaction, allowing concurrent requests to both pass the status check and issue duplicate refunds",
+      "max_score": 8
+    },
+    {
+      "name": "Risk classified yellow or higher",
+      "description": "PR is classified as yellow or higher — it adds payment refund processing",
+      "max_score": 10
+    }
+  ]
+}

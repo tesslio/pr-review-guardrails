@@ -1,0 +1,61 @@
+{
+  "context": "Tests whether the agent performs a challenger review with proper independence, uses the correct classification scheme (confirms/refutes/novel), sets source to 'challenger', discards rather than downgrading sub-threshold findings, and documents isolation status.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "source set to challenger",
+      "max_score": 9,
+      "description": "Every finding in challenger_findings.json has 'source' set to 'challenger' (not 'fresh_eyes' or any other value)"
+    },
+    {
+      "name": "classification field present",
+      "max_score": 10,
+      "description": "Every finding includes a 'classification' field with one of exactly: 'confirms', 'refutes', or 'novel'"
+    },
+    {
+      "name": "All three classifications used",
+      "max_score": 8,
+      "description": "The output includes at least one finding of each classification type: confirms, refutes, and novel (OR justifies why one type is not applicable)"
+    },
+    {
+      "name": "Independence declaration",
+      "max_score": 9,
+      "description": "independence_check.md explicitly states whether primary review output was accessible and confirms the reviewer did not read it"
+    },
+    {
+      "name": "Context isolation reported",
+      "max_score": 9,
+      "description": "independence_check.md includes a context_isolation status (true/false or yes/no) and describes what type of isolation was used"
+    },
+    {
+      "name": "Evidence threshold: discard not downgrade",
+      "max_score": 10,
+      "description": "Any finding that did not meet the evidence threshold is discarded (not included with lowered severity/confidence). If any such findings are noted, they appear only as discarded/excluded, not as included low-confidence findings."
+    },
+    {
+      "name": "Evidence type declared",
+      "max_score": 9,
+      "description": "Every finding includes an evidence type (verifier_output, hunk_level_code, repo_policy, or contextual_reasoning) with detail"
+    },
+    {
+      "name": "Hardcoded secret finding grounded",
+      "max_score": 9,
+      "description": "The finding about the JWT secret fallback references the semgrep verifier output as evidence source"
+    },
+    {
+      "name": "Hunk-level specificity",
+      "max_score": 8,
+      "description": "Findings reference specific file paths and line numbers, not just file-level references"
+    },
+    {
+      "name": "Impact not diff restatement",
+      "max_score": 9,
+      "description": "Findings explain impact and consequences, not just describe what the code changed"
+    },
+    {
+      "name": "No primary review references",
+      "max_score": 10,
+      "description": "challenger_findings.json and independence_check.md contain NO references to 'primary reviewer', 'previous findings', 'first reviewer's output', or similar — findings are stated as independently discovered"
+    }
+  ]
+}

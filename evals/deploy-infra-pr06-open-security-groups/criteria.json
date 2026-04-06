@@ -1,0 +1,21 @@
+{
+  "context": "Red lane: 0.0.0.0/0 on all security groups",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Risk classified red",
+      "description": "PR is classified as red — it modifies security group ingress rules",
+      "max_score": 10
+    },
+    {
+      "name": "Catches open-to-world security groups",
+      "description": "Identifies that security groups are being opened to 0.0.0.0/0 (all traffic from the internet) on all ports",
+      "max_score": 8
+    },
+    {
+      "name": "Catches database exposed to internet",
+      "description": "Specifically flags that the database port is being exposed to the public internet",
+      "max_score": 7
+    }
+  ]
+}

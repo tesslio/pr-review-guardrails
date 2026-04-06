@@ -1,0 +1,21 @@
+{
+  "context": "Edge case: oversized WIP PR",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Detects oversized PR",
+      "description": "Identifies that the PR is too large for effective review (35+ files, 2000+ lines)",
+      "max_score": 15
+    },
+    {
+      "name": "Recommends splitting",
+      "description": "Recommends splitting the PR into smaller, reviewable chunks",
+      "max_score": 8
+    },
+    {
+      "name": "Notes WIP status",
+      "description": "Acknowledges the WIP nature of the PR from the description",
+      "max_score": 3
+    }
+  ]
+}

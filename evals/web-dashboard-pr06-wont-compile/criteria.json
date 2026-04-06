@@ -1,0 +1,16 @@
+{
+  "context": "Edge case: TypeScript compilation errors",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Detects compilation failure",
+      "description": "Identifies that the PR introduces TypeScript compilation errors (missing imports, wrong types, or missing props)",
+      "max_score": 15
+    },
+    {
+      "name": "Detects test failure",
+      "description": "Notes that tests fail or would fail due to the introduced errors",
+      "max_score": 8
+    }
+  ]
+}

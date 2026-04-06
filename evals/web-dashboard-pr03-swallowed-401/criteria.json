@@ -1,0 +1,21 @@
+{
+  "context": "Hard: error interceptor refactor silently swallows 401 responses — Promise.resolve instead of Promise.reject makes auth failures appear as successful API calls",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches 401 silently resolved as success",
+      "description": "Identifies that the error interceptor handles status 401 with Promise.resolve(error.response) instead of Promise.reject, meaning callers receive the 401 error data as a successful response. Auth failures will appear to succeed with garbage/error data.",
+      "max_score": 15
+    },
+    {
+      "name": "Catches removed auth redirect behavior",
+      "description": "Identifies that the old handleUnauthorized() function (which cleared tokens and redirected to login) has been replaced with a log warning and silent resolve, breaking the auth recovery flow",
+      "max_score": 7
+    },
+    {
+      "name": "Risk classified red",
+      "description": "PR is classified as red due to auth/security behavior change that silently breaks authentication handling",
+      "max_score": 10
+    }
+  ]
+}

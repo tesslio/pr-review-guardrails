@@ -1,0 +1,16 @@
+{
+  "context": "Realistic: localStorage preferences parsed without validation cause type errors in distant code",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches unsafe localStorage parsing",
+      "description": "Identifies that preferences loaded from localStorage are not validated for type correctness — a corrupted or version-mismatched stored value (e.g., string where number expected) causes silent failures or NaN in downstream calculations",
+      "max_score": 15
+    },
+    {
+      "name": "Risk classified yellow or higher",
+      "description": "PR is classified as yellow or higher — it adds persistent state that can cause runtime errors",
+      "max_score": 10
+    }
+  ]
+}

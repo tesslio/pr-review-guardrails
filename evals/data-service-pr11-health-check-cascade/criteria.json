@@ -1,0 +1,16 @@
+{
+  "context": "Realistic: health check competes for DB pool connections, causing cascading failure under load",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches health check pool contention",
+      "description": "Identifies that the health check acquires a connection from the same database pool used by application queries — under pool exhaustion, the health check blocks, the health endpoint times out, and the load balancer removes the instance, worsening the pool exhaustion across remaining instances",
+      "max_score": 15
+    },
+    {
+      "name": "Risk classified yellow or higher",
+      "description": "PR is classified as yellow or higher — it adds monitoring that interacts with critical infrastructure",
+      "max_score": 10
+    }
+  ]
+}

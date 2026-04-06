@@ -1,0 +1,21 @@
+{
+  "context": "Realistic: correlation ID from request header accepted without validation — no length limit, no character restriction, echoed back in response header",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches unsanitized header propagation",
+      "description": "Identifies that the correlation ID from the incoming HTTP header is accepted without any validation (no length limit, no format check, no character restriction) and propagated through context, logs, and response headers",
+      "max_score": 10
+    },
+    {
+      "name": "Catches response header echo risk",
+      "description": "Identifies that the correlation ID is echoed back in the HTTP response header (X-Correlation-ID), and that an attacker-controlled value in a response header could enable header injection if the value contains CRLF sequences",
+      "max_score": 10
+    },
+    {
+      "name": "Risk classified yellow or higher",
+      "description": "PR is classified as yellow or higher — it processes untrusted input into logs and response headers",
+      "max_score": 10
+    }
+  ]
+}

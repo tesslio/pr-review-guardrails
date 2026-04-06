@@ -1,0 +1,16 @@
+{
+  "context": "Hard: error messages leak internal processor details",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches information disclosure",
+      "description": "Identifies that error responses expose internal payment processor details (API key fragments, internal transaction IDs, processor error messages, or routing info) that should not be visible to end users",
+      "max_score": 15
+    },
+    {
+      "name": "Risk classified yellow or higher",
+      "description": "PR is classified as yellow or higher — it changes error handling in payment processing",
+      "max_score": 10
+    }
+  ]
+}

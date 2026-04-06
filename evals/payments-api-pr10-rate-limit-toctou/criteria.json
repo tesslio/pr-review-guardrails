@@ -1,0 +1,21 @@
+{
+  "context": "Hard: distributed rate limiter uses separate Redis GET and SET instead of atomic INCR — concurrent requests can all read the same count and bypass the limit",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches non-atomic rate limit check",
+      "description": "Identifies that r.get(key), the comparison, and r.set(key, count+1) are three separate Redis operations with no atomicity (no MULTI/EXEC, no Lua script, no INCR). Under concurrent requests, multiple requests can read the same count and all pass the check.",
+      "max_score": 15
+    },
+    {
+      "name": "Identifies security impact on brute force protection",
+      "description": "Recognizes that the auth_login rate limit (5 req/min for brute force protection) is effectively bypassed under concurrent attack, making the rate limiter security-critical rather than just a performance concern",
+      "max_score": 8
+    },
+    {
+      "name": "Risk classified red",
+      "description": "PR is classified as red due to security-critical rate limiting with a concurrency flaw",
+      "max_score": 10
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "context": "Hard: DB pool closed before in-flight requests drain during shutdown",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches shutdown ordering bug",
+      "description": "Identifies that the database connection pool (or store) is closed before in-flight HTTP requests finish draining, causing mid-query requests to fail with connection errors during graceful shutdown",
+      "max_score": 15
+    },
+    {
+      "name": "Risk classified yellow or higher",
+      "description": "PR is classified as yellow or higher — it changes server lifecycle management",
+      "max_score": 10
+    }
+  ]
+}

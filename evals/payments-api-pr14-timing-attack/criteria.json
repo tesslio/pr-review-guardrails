@@ -1,0 +1,21 @@
+{
+  "context": "Hard: timing attack in HMAC signature comparison",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches timing attack vulnerability",
+      "description": "Identifies that the webhook signature comparison uses == (string equality) instead of hmac.compare_digest() or equivalent constant-time comparison, making it vulnerable to timing attacks",
+      "max_score": 15
+    },
+    {
+      "name": "Risk classified yellow or higher",
+      "description": "PR is classified as yellow or higher — it adds security-sensitive signature verification logic",
+      "max_score": 10
+    },
+    {
+      "name": "Does not raise irrelevant findings",
+      "description": "Does not raise more than one false positive finding unrelated to the actual vulnerability",
+      "max_score": 5
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "context": "Realistic: ORDER BY direction parameter validated after query is already built (check-after-use)",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches sort direction injection",
+      "description": "Identifies that the sort direction parameter from user input is used in the SQL query before it is validated — the validation/sanitization happens after the query string is already constructed with the unvalidated value",
+      "max_score": 15
+    },
+    {
+      "name": "Risk classified yellow or higher",
+      "description": "PR is classified as yellow or higher — it adds a search endpoint with dynamic query construction",
+      "max_score": 10
+    }
+  ]
+}

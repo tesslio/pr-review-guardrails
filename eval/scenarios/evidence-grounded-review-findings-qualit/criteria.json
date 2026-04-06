@@ -1,0 +1,66 @@
+{
+  "context": "Tests whether the agent produces evidence-grounded findings that meet the evidence threshold rules, uses correct finding structure with evidence types, explains impact rather than restating code changes, avoids banned anti-patterns, and correctly handles the suppression of low-confidence speculation.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Evidence type declared",
+      "max_score": 10,
+      "description": "Every finding in findings.json includes an 'evidence' field with a 'type' value that is one of: verifier_output, hunk_level_code, repo_policy, or contextual_reasoning"
+    },
+    {
+      "name": "SQL injection grounded in verifier",
+      "max_score": 10,
+      "description": "The SQL injection finding (src/db/queries.py) references the bandit verifier output as its evidence source, not only general intuition"
+    },
+    {
+      "name": "Hunk-level specificity",
+      "max_score": 8,
+      "description": "Findings reference specific files and line numbers (line_start/line_end or equivalent), not just file-level comments"
+    },
+    {
+      "name": "Impact explained",
+      "max_score": 10,
+      "description": "Each finding's 'why_it_matters' (or equivalent) explains the consequence/impact ('this can cause X'), not just restates what changed ('this was changed from Y to Z')"
+    },
+    {
+      "name": "No diff restatement",
+      "max_score": 8,
+      "description": "No finding merely re-describes the code change in English without explaining a real risk or consequence"
+    },
+    {
+      "name": "No linter-covered style issues",
+      "max_score": 8,
+      "description": "Does NOT surface generic style or naming findings that would be covered by a linter (e.g. variable naming, formatting, import ordering)"
+    },
+    {
+      "name": "No 'consider using' anti-pattern",
+      "max_score": 7,
+      "description": "Does NOT contain phrases like 'Consider using...', 'This could be improved...', or 'Nitpick:' without explaining a concrete defect"
+    },
+    {
+      "name": "No non-duplicative verifier findings",
+      "max_score": 7,
+      "description": "Findings do not simply restate issues already present in verifier_output verbatim as a new independent finding"
+    },
+    {
+      "name": "Suppressed findings retained",
+      "max_score": 8,
+      "description": "findings.json includes a record of suppressed/discarded findings (with suppression reason), not just surfaced ones"
+    },
+    {
+      "name": "Confidence levels assigned",
+      "max_score": 8,
+      "description": "Each finding has a confidence value (high/medium/low) and low-confidence findings without concrete evidence are either downgraded to questions or suppressed"
+    },
+    {
+      "name": "Scoped to changed code",
+      "max_score": 8,
+      "description": "Findings only reference code in the diff (src/payments/gateway.py, src/payments/retry.py, src/db/queries.py), not pre-existing unrelated code"
+    },
+    {
+      "name": "source field set",
+      "max_score": 8,
+      "description": "Each finding includes a 'source' field set to 'fresh_eyes'"
+    }
+  ]
+}

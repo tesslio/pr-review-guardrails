@@ -1,0 +1,16 @@
+{
+  "context": "Hard: IDOR \u2014 client-side only auth check, no server-side authorization",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches IDOR vulnerability",
+      "description": "Identifies that the audit log endpoint relies on client-side UI hiding for access control but has no server-side authorization check \u2014 any authenticated user can view any other user's audit log by manipulating the URL/API call",
+      "max_score": 15
+    },
+    {
+      "name": "Distinguishes UI hiding from real authorization",
+      "description": "Specifically notes that hiding a UI element is not the same as enforcing authorization, and that the server-side check is missing",
+      "max_score": 8
+    }
+  ]
+}

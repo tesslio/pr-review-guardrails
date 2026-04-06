@@ -1,0 +1,21 @@
+{
+  "context": "Cascading: ECS task and Helm resource limits slashed 4x for a production payments service — will cause OOM kills and cascading restarts under load",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches dangerous resource reduction",
+      "description": "Identifies that cutting memory limits from 2048MiB to 512MiB (4x reduction) for a production payments service is dangerous — normal traffic spikes or memory-intensive operations will trigger OOM kills",
+      "max_score": 12
+    },
+    {
+      "name": "Identifies cascading restart risk",
+      "description": "Recognizes that OOM-killed containers trigger restarts, which shift load to remaining instances, which are also resource-constrained, leading to a cascading failure across the fleet",
+      "max_score": 8
+    },
+    {
+      "name": "Risk classified yellow or higher",
+      "description": "PR touches production resource limits for a payment-critical service and should be classified as at least yellow risk",
+      "max_score": 10
+    }
+  ]
+}

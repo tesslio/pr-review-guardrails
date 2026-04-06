@@ -1,0 +1,16 @@
+{
+  "context": "Realistic: read replica in same AZ as primary provides no HA benefit, no independent backups",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches same-AZ replica",
+      "description": "Identifies that the read replica is in the same availability zone as the primary database instance, providing no high-availability benefit \u2014 if the AZ goes down, both primary and replica are lost",
+      "max_score": 12
+    },
+    {
+      "name": "Catches missing replica backups",
+      "description": "Identifies that the replica has backup_retention_period set to 0, meaning no independent point-in-time recovery capability",
+      "max_score": 8
+    }
+  ]
+}

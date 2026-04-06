@@ -1,0 +1,21 @@
+{
+  "context": "Green lane: docs-only, no bugs expected",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Risk classified green",
+      "description": "PR is classified as green/low risk \u2014 it only changes documentation",
+      "max_score": 10
+    },
+    {
+      "name": "No false positive findings",
+      "description": "No high or critical severity findings are raised \u2014 this is a clean docs-only PR",
+      "max_score": 10
+    },
+    {
+      "name": "Minimal review overhead",
+      "description": "Review output is brief and does not over-analyze a trivial docs change",
+      "max_score": 5
+    }
+  ]
+}

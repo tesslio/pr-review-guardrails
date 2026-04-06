@@ -1,0 +1,16 @@
+{
+  "context": "Hard: cached records include permission level that can become stale",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches stale authorization cache",
+      "description": "Identifies that the cache stores records including the user's permission/access level, and that if permissions are revoked or downgraded, the cached record still returns the old (higher) permission level until the cache TTL expires",
+      "max_score": 15
+    },
+    {
+      "name": "Risk classified yellow or higher",
+      "description": "PR is classified as yellow or higher — it adds a caching layer that affects authorization-relevant data",
+      "max_score": 10
+    }
+  ]
+}

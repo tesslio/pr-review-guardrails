@@ -1,0 +1,16 @@
+{
+  "context": "Hard: CSV formula injection when opened in spreadsheet applications",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches CSV injection",
+      "description": "Identifies that CSV cell values starting with =, +, -, or @ are not sanitized and will be interpreted as formulas when opened in Excel or Google Sheets — a formula injection / CSV injection vulnerability",
+      "max_score": 8
+    },
+    {
+      "name": "Risk classified yellow or higher",
+      "description": "PR is classified as yellow or higher — it generates downloadable files from user data",
+      "max_score": 10
+    }
+  ]
+}

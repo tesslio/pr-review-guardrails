@@ -1,0 +1,16 @@
+{
+  "context": "Realistic: exchange rates loaded at import time become stale in long-lived processes",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches stale rate data",
+      "description": "Identifies that exchange rates are loaded from the database once at module import time and cached in a module-level variable, meaning rate updates are never picked up in long-lived production processes until the service is restarted",
+      "max_score": 15
+    },
+    {
+      "name": "Risk classified yellow or higher",
+      "description": "PR is classified as yellow or higher — it adds payment amount calculations using cached data",
+      "max_score": 10
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "context": "Hard: concurrent worker pool with data race on shared counters and cross-batch result leaking",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches data race on shared counters",
+      "description": "Identifies that wp.processed++ and wp.failed++ are incremented from multiple goroutines without synchronization (no mutex, no atomic). This is a Go data race that corrupts stats.",
+      "max_score": 15
+    },
+    {
+      "name": "Catches cross-batch result leaking",
+      "description": "Identifies that the result channel is shared and workers are not stopped between ProcessBatch calls, so results from one batch can leak into a subsequent batch's results",
+      "max_score": 8
+    },
+    {
+      "name": "Risk classified red",
+      "description": "PR is classified as red due to concurrency changes with data race potential",
+      "max_score": 10
+    }
+  ]
+}

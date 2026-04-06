@@ -1,0 +1,66 @@
+{
+  "context": "Tests whether the agent correctly applies deduplication strategies (exact match, semantic overlap, corroboration, conflict), ranks findings by severity×confidence×verification_support, suppresses style/linter-covered findings, retains suppressed findings in data, and adds the required synthesis metadata fields.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Cache key findings merged",
+      "max_score": 10,
+      "description": "fe-001, fe-002, and ch-001 are merged into a single finding (or cluster) in merged_findings.json — not surfaced as three separate independent findings"
+    },
+    {
+      "name": "Corroborated_by populated",
+      "max_score": 8,
+      "description": "The merged cache key finding has corroborated_by listing at least two sources (fresh_eyes and challenger, or equivalent)"
+    },
+    {
+      "name": "Conflict detected for stack trace",
+      "max_score": 9,
+      "description": "fe-003 and ch-002 are identified as conflicting (contested_by populated) since one flags the stack trace as dangerous and the other refutes it as safe"
+    },
+    {
+      "name": "Contested finding surfaced",
+      "max_score": 8,
+      "description": "The contested stack trace finding is surfaced (not suppressed) despite the conflict, and its action is set to 'discuss' (or equivalent) or requires_human is set to true"
+    },
+    {
+      "name": "Style finding suppressed",
+      "max_score": 9,
+      "description": "fe-004 (variable naming / non-descriptive variable name) is suppressed with a suppression_reason referencing linter coverage or style-only finding"
+    },
+    {
+      "name": "Suppressed findings retained",
+      "max_score": 8,
+      "description": "merged_findings.json includes suppressed findings (suppressed: true) with suppression_reason populated — they are not omitted from the output"
+    },
+    {
+      "name": "Novel finding included",
+      "max_score": 8,
+      "description": "ch-003 (TTL=0 / never expires) is included as a surfaced finding since it is novel and meets the evidence threshold"
+    },
+    {
+      "name": "Ranking by score formula",
+      "max_score": 9,
+      "description": "synthesis_report.md documents a ranking score for each surfaced finding calculated using severity × confidence × verification_support (or an equivalent multiplicative formula)"
+    },
+    {
+      "name": "Cache key finding ranked first",
+      "max_score": 8,
+      "description": "The merged cache key finding (severity 3 × confidence 3 × verification_support 2 = 18) ranks highest among surfaced findings"
+    },
+    {
+      "name": "merged_confidence field present",
+      "max_score": 7,
+      "description": "Every finding in merged_findings.json includes a merged_confidence field set to high, medium, or low"
+    },
+    {
+      "name": "Deduplication strategy named",
+      "max_score": 8,
+      "description": "synthesis_report.md names the deduplication strategy applied to each cluster (exact match, semantic overlap, corroboration, or conflict) — not just the result"
+    },
+    {
+      "name": "No arbitrary cap",
+      "max_score": 8,
+      "description": "The output does NOT arbitrarily limit findings to a fixed count (e.g. 'top 3 findings') — all findings clearing the evidence threshold are surfaced"
+    }
+  ]
+}

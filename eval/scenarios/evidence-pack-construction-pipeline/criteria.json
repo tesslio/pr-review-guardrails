@@ -1,0 +1,76 @@
+{
+  "context": "Tests whether the agent constructs an evidence pack pipeline following the pr-evidence-builder skill's specific scripts, parallelism requirements, fallback behavior, risk classification rules, and output structure.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Uses collect_pr_context.py",
+      "max_score": 8,
+      "description": "Script invokes collect_pr_context.py (not a custom ad-hoc implementation) for PR context collection"
+    },
+    {
+      "name": "Uses run_verifiers.sh",
+      "max_score": 8,
+      "description": "Script invokes run_verifiers.sh (not a custom verifier runner) for running deterministic verifiers"
+    },
+    {
+      "name": "Parallel execution",
+      "max_score": 9,
+      "description": "Verifiers run in parallel with context collection (e.g. backgrounded processes, & operator, or explicit parallelism noted in design)"
+    },
+    {
+      "name": "60s verifier timeout",
+      "max_score": 7,
+      "description": "60-second per-verifier timeout is enforced (--timeout 60 flag or equivalent)"
+    },
+    {
+      "name": "GitHub API retry",
+      "max_score": 7,
+      "description": "Script retries GitHub API with backoff on failure, with exactly 3 attempts before falling back"
+    },
+    {
+      "name": "Local git fallback",
+      "max_score": 7,
+      "description": "On GitHub API unavailability after retries, script produces partial evidence pack from local git data (--diff flag or equivalent fallback)"
+    },
+    {
+      "name": "Oversized diff blocker",
+      "max_score": 8,
+      "description": "Pipeline detects oversized diffs and surfaces a blocker message (includes the phrase 'too large' or equivalent); verifiers still run even when diff is oversized"
+    },
+    {
+      "name": "Uses classify_change_risk.py",
+      "max_score": 8,
+      "description": "Script invokes classify_change_risk.py for risk classification (not ad-hoc logic)"
+    },
+    {
+      "name": "Risk round-up on low confidence",
+      "max_score": 7,
+      "description": "Design document explains that low-confidence risk classification rounds UP to the next higher lane"
+    },
+    {
+      "name": "Uses map_diff_hotspots.py",
+      "max_score": 7,
+      "description": "Script invokes map_diff_hotspots.py for hotspot mapping"
+    },
+    {
+      "name": "Uses check_required_artifacts.py",
+      "max_score": 6,
+      "description": "Script invokes check_required_artifacts.py for artifact checking"
+    },
+    {
+      "name": "Uses compose_evidence_pack.py",
+      "max_score": 8,
+      "description": "Script uses compose_evidence_pack.py to merge all intermediate outputs into the final evidence-pack.json"
+    },
+    {
+      "name": "Config file paths",
+      "max_score": 6,
+      "description": "Script references .pr-review/verifiers.json for custom verifiers and .pr-review/risk-overrides.json for risk overrides"
+    },
+    {
+      "name": "Schema version",
+      "max_score": 4,
+      "description": "Design document or script references evidence pack schema version 1.0"
+    }
+  ]
+}

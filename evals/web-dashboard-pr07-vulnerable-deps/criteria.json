@@ -1,0 +1,16 @@
+{
+  "context": "Edge case: dependencies with known CVEs",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches vulnerable dependencies",
+      "description": "Identifies that the PR adds dependencies with known security vulnerabilities (CVEs)",
+      "max_score": 8
+    },
+    {
+      "name": "Names specific packages",
+      "description": "Names at least one specific vulnerable package and its risk (e.g. lodash prototype pollution, jsonwebtoken vulnerability)",
+      "max_score": 8
+    }
+  ]
+}

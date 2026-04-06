@@ -1,0 +1,26 @@
+{
+  "context": "Edge case: AI-assisted PR removing error handling",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Detects AI authorship",
+      "description": "Detects that the PR was AI-assisted via Co-Authored-By commit trailers",
+      "max_score": 5
+    },
+    {
+      "name": "Catches removed error handling",
+      "description": "Identifies that the PR removes error checking (if err != nil blocks) which will cause silent failures and potential panics",
+      "max_score": 15
+    },
+    {
+      "name": "Catches removed context propagation",
+      "description": "Identifies that replacing real contexts with context.Background() breaks cancellation, timeout, and tracing",
+      "max_score": 8
+    },
+    {
+      "name": "Risk classified red",
+      "description": "PR is classified as red despite the innocuous title — the changes are dangerous",
+      "max_score": 10
+    }
+  ]
+}

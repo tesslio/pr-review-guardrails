@@ -1,0 +1,16 @@
+{
+  "context": "Edge case: oversized PR should trigger split recommendation",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Detects oversized PR",
+      "description": "Identifies that the PR is too large for effective review (40+ files, 1500+ lines changed)",
+      "max_score": 8
+    },
+    {
+      "name": "Recommends splitting",
+      "description": "Recommends splitting the PR into smaller, reviewable chunks",
+      "max_score": 7
+    }
+  ]
+}

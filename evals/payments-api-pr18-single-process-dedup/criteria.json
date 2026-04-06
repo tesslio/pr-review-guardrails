@@ -1,0 +1,16 @@
+{
+  "context": "Realistic: webhook dedup uses in-memory set that doesn't survive across worker processes",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches in-memory dedup limitation",
+      "description": "Identifies that the event deduplication uses an in-memory data structure (set/dict) that is not shared across worker processes — in a multi-process deployment (gunicorn, uwsgi, etc.) each worker has its own copy, so the same event gets processed multiple times",
+      "max_score": 15
+    },
+    {
+      "name": "Risk classified yellow or higher",
+      "description": "PR is classified as yellow or higher — it adds webhook event processing",
+      "max_score": 10
+    }
+  ]
+}

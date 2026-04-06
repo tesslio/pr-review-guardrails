@@ -1,0 +1,21 @@
+{
+  "context": "Edge case: no description, changes auth code",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Flags missing description",
+      "description": "Identifies that the PR has no meaningful description or linked issue, making intent unclear",
+      "max_score": 7
+    },
+    {
+      "name": "Escalates due to auth changes",
+      "description": "Despite the vague title, identifies that the PR touches auth-sensitive code and flags it for human review",
+      "max_score": 7
+    },
+    {
+      "name": "Catches silent error swallowing",
+      "description": "Identifies that bare except/pass blocks silently swallow errors",
+      "max_score": 5
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "context": "Realistic: S3 Glacier transition breaks on-demand receipt downloads (3-12 hour retrieval)",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches Glacier retrieval impact",
+      "description": "Identifies that transitioning objects to Glacier (or similar cold storage) will break or severely degrade on-demand access to those objects, since Glacier retrieval takes hours — the receipts stored here may need to be accessed by users or the application",
+      "max_score": 15
+    },
+    {
+      "name": "Risk classified yellow or higher",
+      "description": "PR is classified as yellow or higher — it changes storage lifecycle for application data",
+      "max_score": 10
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "context": "Green lane: route guard logic change from every() to some() looks suspicious but is actually correct for the OR-style role requirements in the route config",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Risk classified green or yellow",
+      "description": "PR should not be classified as red — the logic change from every() to some() matches the actual route config usage where role arrays represent OR conditions (admin OR manager), not AND conditions",
+      "max_score": 10
+    },
+    {
+      "name": "No false positive on every-to-some change",
+      "description": "Does not flag the every() to some() change as a security vulnerability. The route config uses arrays like ['admin', 'manager'] as OR conditions, so some() is the correct semantic. Flagging this as a bug is a false positive.",
+      "max_score": 10
+    },
+    {
+      "name": "Minimal review overhead",
+      "description": "Review is concise and proportional to the change scope — does not produce excessive findings on a straightforward refactor",
+      "max_score": 5
+    }
+  ]
+}

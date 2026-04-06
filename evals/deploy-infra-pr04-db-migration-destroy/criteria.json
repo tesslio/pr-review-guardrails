@@ -1,0 +1,26 @@
+{
+  "context": "Critical: RDS engine change from MySQL to PostgreSQL will cause Terraform to destroy and recreate the database, deleting all production data. Safety guards (deletion_protection, final_snapshot, backups) also removed.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches destroy-and-recreate risk",
+      "description": "Identifies that changing the RDS engine from MySQL to PostgreSQL in Terraform causes a destroy-and-recreate of the database instance (not an in-place migration), which deletes all production data",
+      "max_score": 15
+    },
+    {
+      "name": "Catches removed safety guards",
+      "description": "Identifies that deletion_protection is removed, skip_final_snapshot defaults to true, and backup_retention_period is removed — the database can be deleted without a snapshot and has no backups",
+      "max_score": 10
+    },
+    {
+      "name": "Catches apply_immediately risk",
+      "description": "Identifies that apply_immediately = true means changes take effect immediately rather than during the maintenance window, compounding the risk of the engine change",
+      "max_score": 5
+    },
+    {
+      "name": "Risk classified red",
+      "description": "PR is classified as red due to production database migration with data loss risk",
+      "max_score": 10
+    }
+  ]
+}

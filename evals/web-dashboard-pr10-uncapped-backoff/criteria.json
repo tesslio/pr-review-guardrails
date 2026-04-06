@@ -1,0 +1,16 @@
+{
+  "context": "Realistic: WebSocket reconnection backoff grows without cap, reaching 17+ minutes of dead silence",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches uncapped backoff",
+      "description": "Identifies that the WebSocket reconnection backoff delay grows exponentially without a maximum cap — after several failures the delay reaches minutes or more, leaving the user with silently dead notifications and no indication",
+      "max_score": 15
+    },
+    {
+      "name": "Risk classified yellow or higher",
+      "description": "PR is classified as yellow or higher — it adds real-time communication logic",
+      "max_score": 10
+    }
+  ]
+}

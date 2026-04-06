@@ -1,0 +1,21 @@
+{
+  "context": "Cascading: default payment provider is 'braintree' but only 'stripe' is registered — every payment call crashes if PAYMENT_PROVIDER env var is unset",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches default provider mismatch",
+      "description": "Identifies that DEFAULT_PROVIDER defaults to 'braintree' but PROVIDERS only contains 'stripe', so if the PAYMENT_PROVIDER env var is not set, provider lookup returns None and instantiation crashes with TypeError",
+      "max_score": 15
+    },
+    {
+      "name": "Identifies total payment outage impact",
+      "description": "Recognizes that this is not a minor config issue but a total payment system outage — every create_charge and refund_charge call will fail if the env var is missing",
+      "max_score": 8
+    },
+    {
+      "name": "Risk classified red",
+      "description": "PR is classified as red due to payment-critical code path that crashes under a common deployment configuration",
+      "max_score": 10
+    }
+  ]
+}

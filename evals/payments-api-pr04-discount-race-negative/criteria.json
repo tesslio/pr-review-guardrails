@@ -1,0 +1,26 @@
+{
+  "context": "Hard: discount code validation has TOCTOU race allowing double-use, and fixed_amount discount can produce negative charge amounts",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches TOCTOU race on discount usage",
+      "description": "Identifies that validate_discount_code and decrement_discount_uses are separate non-atomic operations — two concurrent requests can both validate the same code (seeing uses_remaining=1), both succeed, and decrement it below zero",
+      "max_score": 12
+    },
+    {
+      "name": "Catches negative charge amount",
+      "description": "Identifies that apply_discount for fixed_amount type can produce a negative amount_cents (e.g., $5 discount on $3 charge = -$2.00), which could cause unexpected behavior at the payment gateway",
+      "max_score": 10
+    },
+    {
+      "name": "Catches decrement-before-charge ordering",
+      "description": "Identifies that the discount use is decremented before the charge call — if the charge fails, the discount use is consumed but the customer got nothing",
+      "max_score": 5
+    },
+    {
+      "name": "Risk classified red",
+      "description": "PR is classified as red due to financial logic with concurrency and correctness issues",
+      "max_score": 10
+    }
+  ]
+}

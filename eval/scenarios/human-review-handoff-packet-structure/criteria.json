@@ -1,0 +1,71 @@
+{
+  "context": "Tests whether the agent produces a well-structured human review handoff packet with all required sections, correct disclaimer verbatim, metadata block, risk rating with factors, findings ordered by severity, escalation areas with specific questions, and no approval language.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "TL;DR present and brief",
+      "max_score": 7,
+      "description": "review-packet.md contains a TL;DR section and it is 2 sentences or fewer"
+    },
+    {
+      "name": "Risk rating with factors",
+      "max_score": 7,
+      "description": "Packet includes a risk rating of HIGH (or RED) and lists contributing factors (at minimum: database schema migration, public API change)"
+    },
+    {
+      "name": "Verification Status table",
+      "max_score": 7,
+      "description": "Packet includes a Verification Status section formatted as a table (or equivalent structured list) showing verifier names, statuses, and notable findings"
+    },
+    {
+      "name": "Findings ordered by severity",
+      "max_score": 7,
+      "description": "Findings are presented in order of severity (critical finding f-001 appears before high finding f-002, which appears before medium finding f-003)"
+    },
+    {
+      "name": "Findings have suggested actions",
+      "max_score": 6,
+      "description": "Each finding in the packet includes a suggested action (fix / verify / discuss or equivalent)"
+    },
+    {
+      "name": "Unresolved Assumptions section",
+      "max_score": 7,
+      "description": "Packet includes an 'Unresolved Assumptions' section (or equivalent), even if explicitly stated as empty or 'None'"
+    },
+    {
+      "name": "Review Focus names specific files/hunks",
+      "max_score": 7,
+      "description": "Packet includes a 'Recommended Review Focus' (or equivalent) section that names specific files and/or line ranges (e.g. db/migrations/0042_add_user_tier.sql, src/api/users_v2.py:67-72)"
+    },
+    {
+      "name": "Disclaimer verbatim",
+      "max_score": 10,
+      "description": "Packet contains the exact disclaimer text: 'This is an evidence-based review aid, not an approval. The tile produces findings and questions. Humans produce decisions.' (or a version containing all three sentences substantially verbatim)"
+    },
+    {
+      "name": "No approval language",
+      "max_score": 9,
+      "description": "Packet does NOT contain 'LGTM', 'approved', 'looks good to merge', 'no issues found', or any phrase that could be read as granting approval"
+    },
+    {
+      "name": "Metadata block complete",
+      "max_score": 8,
+      "description": "Packet includes a metadata section with all of: reviewer mode, reviewer model family, authoring model family, wall-clock time, and context isolation status"
+    },
+    {
+      "name": "Escalation areas flagged",
+      "max_score": 10,
+      "description": "Packet explicitly marks the migration and the public API change as requiring mandatory human review (not just listed as findings) and surfaces at least one specific question for the human reviewer to answer"
+    },
+    {
+      "name": "Inline packet (no external script)",
+      "max_score": 5,
+      "description": "review-packet.md is a formatted markdown document (not a JSON file and not a script output placeholder); it is generated inline from the provided inputs"
+    },
+    {
+      "name": "AI authorship noted",
+      "max_score": 10,
+      "description": "Packet includes the AI-assisted field from the evidence pack (noting 'no' or 'not detected' since ai_assisted is false)"
+    }
+  ]
+}

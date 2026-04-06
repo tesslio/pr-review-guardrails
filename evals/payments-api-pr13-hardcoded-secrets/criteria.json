@@ -1,0 +1,21 @@
+{
+  "context": "Edge case: hardcoded secrets in AI-assisted PR",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches hardcoded secrets",
+      "description": "Identifies hardcoded API keys, secrets, or credentials in the code",
+      "max_score": 15
+    },
+    {
+      "name": "Detects AI authorship",
+      "description": "Detects that the PR was AI-assisted via Co-Authored-By commit trailers",
+      "max_score": 5
+    },
+    {
+      "name": "Risk classified red",
+      "description": "PR is classified as red due to secrets/trust-boundary code",
+      "max_score": 10
+    }
+  ]
+}

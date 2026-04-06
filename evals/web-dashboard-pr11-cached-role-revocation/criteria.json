@@ -1,0 +1,16 @@
+{
+  "context": "Realistic: cached user profile includes role used for permission checks, not invalidated on revocation",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches stale role in cache",
+      "description": "Identifies that the prefetch cache stores user profile data including the role/permissions field, and that permission checks in the UI read from this cache — if a user's role is revoked by another admin, the cached data still shows the old role until TTL expires or manual refresh",
+      "max_score": 15
+    },
+    {
+      "name": "Risk classified yellow or higher",
+      "description": "PR is classified as yellow or higher — it adds a caching layer that affects permission-sensitive UI rendering",
+      "max_score": 10
+    }
+  ]
+}

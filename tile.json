@@ -1,0 +1,23 @@
+{
+  "name": "tessl-labs/pr-review-guardrails",
+  "version": "0.1.0",
+  "summary": "Evidence-first pull request review with independent critique, selective challenger review, and human handoff.",
+  "private": true,
+  "entrypoint": "skills/README.md",
+  "skills": {
+    "pr-evidence-builder": { "path": "skills/pr-evidence-builder/SKILL.md" },
+    "fresh-eyes-review": { "path": "skills/fresh-eyes-review/SKILL.md" },
+    "challenger-review": { "path": "skills/challenger-review/SKILL.md" },
+    "finding-synthesizer": { "path": "skills/finding-synthesizer/SKILL.md" },
+    "human-review-handoff": { "path": "skills/human-review-handoff/SKILL.md" },
+    "review-retrospective": { "path": "skills/review-retrospective/SKILL.md" }
+  },
+  "steering": {
+    "review-boundaries": { "rules": "rules/review-boundaries.md" },
+    "reviewer-independence": { "rules": "rules/reviewer-independence.md" },
+    "evidence-threshold": { "rules": "rules/evidence-threshold.md" },
+    "comment-quality": { "rules": "rules/comment-quality.md" },
+    "risk-routing": { "rules": "rules/risk-routing.md" },
+    "human-escalation": { "rules": "rules/human-escalation.md" }
+  }
+}

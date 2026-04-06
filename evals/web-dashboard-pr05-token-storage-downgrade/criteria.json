@@ -1,0 +1,21 @@
+{
+  "context": "Hard: auth tokens migrated from httpOnly cookies to localStorage — any XSS vulnerability now enables full account takeover via token exfiltration",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches token storage security downgrade",
+      "description": "Identifies that moving tokens from httpOnly cookies (inaccessible to JavaScript) to localStorage (readable by any script on the page) is a security downgrade. Any XSS vulnerability now allows token exfiltration and full account takeover.",
+      "max_score": 15
+    },
+    {
+      "name": "Catches refresh token exposure",
+      "description": "Identifies that storing the refresh token in localStorage is especially dangerous — refresh tokens are long-lived and allow persistent account access even after the access token expires",
+      "max_score": 7
+    },
+    {
+      "name": "Risk classified red",
+      "description": "PR is classified as red due to auth/security token storage change that weakens the security posture",
+      "max_score": 10
+    }
+  ]
+}

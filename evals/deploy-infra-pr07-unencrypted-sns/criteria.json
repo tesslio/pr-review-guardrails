@@ -1,0 +1,21 @@
+{
+  "context": "Hard: SNS topic with public access policy and HTTP (not HTTPS) subscription",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches unencrypted notification endpoint",
+      "description": "Identifies that the alarm notification subscription uses HTTP instead of HTTPS, sending potentially sensitive operational alerts over an unencrypted connection",
+      "max_score": 7
+    },
+    {
+      "name": "Catches overly permissive SNS policy",
+      "description": "Identifies that the SNS topic policy grants public or overly broad access (AWS: * or similar), allowing unauthorized parties to subscribe to or read alarm notifications",
+      "max_score": 7
+    },
+    {
+      "name": "Risk classified red or yellow",
+      "description": "PR is classified as yellow or red — it configures security-sensitive notification infrastructure",
+      "max_score": 10
+    }
+  ]
+}

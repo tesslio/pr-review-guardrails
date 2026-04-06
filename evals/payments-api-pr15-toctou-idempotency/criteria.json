@@ -1,0 +1,16 @@
+{
+  "context": "Hard: TOCTOU race in idempotency check — check and insert not transactional",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Catches TOCTOU race condition",
+      "description": "Identifies that the idempotency key check (read) and the payment creation + key insert are not in the same database transaction, allowing concurrent requests with the same key to both pass the check and create duplicate payments",
+      "max_score": 8
+    },
+    {
+      "name": "Risk classified yellow or higher",
+      "description": "PR is classified as yellow or higher — it adds critical payment deduplication logic",
+      "max_score": 10
+    }
+  ]
+}
