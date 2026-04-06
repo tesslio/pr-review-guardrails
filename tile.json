@@ -2,7 +2,7 @@
   "name": "tessl-labs/pr-review-guardrails",
   "version": "0.1.0",
   "summary": "Evidence-first pull request review with independent critique, selective challenger review, and human handoff.",
-  "private": true,
+  "private": false,
   "entrypoint": "skills/README.md",
   "skills": {
     "pr-evidence-builder": { "path": "skills/pr-evidence-builder/SKILL.md" },
