@@ -56,13 +56,13 @@ Same schema as [`fresh-eyes-review`](../fresh-eyes-review/SKILL.md), with `sourc
 ```json
 {
   "source": "challenger",
-  "file": "src/auth/token.ts",
+  "file": "src/api/handlers.ts",
   "line": 42,
   "severity": "high",
   "classification": "confirms",
-  "title": "JWT secret falls back to hardcoded value",
-  "evidence": "process.env.JWT_SECRET ?? 'dev-secret' means any deployment missing the env var silently uses a known secret.",
-  "recommendation": "Remove the fallback entirely and throw on missing secret at startup."
+  "title": "Unbounded query size allows denial-of-service",
+  "evidence": "req.body.ids is passed directly to the IN clause with no length check — an array of 100k IDs will lock the table.",
+  "recommendation": "Add a maximum length check (e.g., 100 items) before constructing the query."
 }
 ```
 

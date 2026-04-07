@@ -34,43 +34,43 @@ The packet contains these sections (see the example output for exact formatting)
 ## PR Review Packet
 
 ### TL;DR
-Adds OAuth2 token refresh logic to `auth/session.py`; risk is MEDIUM due to
-token-expiry edge cases. One unresolved assumption about clock-skew tolerance
-requires human input.
+Adds retry logic with exponential backoff to `api/client.py`; risk is MEDIUM due to
+unbounded retry count and missing circuit breaker. One unresolved assumption about
+upstream timeout configuration requires human input.
 
 ### Risk: MEDIUM
 Contributing factors:
-- Modifies authentication flow (high-impact surface)
-- No new tests for the refresh-failure path
+- Modifies external service call path (high-impact surface)
+- No new tests for the retry-exhaustion path
 AI-assisted: yes (GitHub Copilot detected in commit metadata)
 
 ### Verification Status
 | Verifier          | Status  | Notable Findings                        |
 |-------------------|---------|-----------------------------------------|
 | Static analysis   | PASS    | No new lint errors                      |
-| Test coverage     | WARN    | refresh-failure branch uncovered (0%)   |
+| Test coverage     | WARN    | retry-exhaustion branch uncovered (0%)  |
 | Dependency audit  | PASS    | No new vulnerable packages              |
 
 ### Findings (2 items)
-1. **Uncovered refresh-failure branch** — `auth/session.py:114`
-   Why it matters: Silent failure on token refresh could leave users with
-   expired sessions and no error feedback.
+1. **Uncovered retry-exhaustion branch** — `api/client.py:114`
+   Why it matters: If all retries fail, the caller receives None instead of
+   an exception, silently dropping the request.
    Evidence: Coverage report (pr-evidence-builder)
    Suggested action: fix
 
-2. **Clock-skew tolerance undocumented** — `auth/session.py:87`
-   Why it matters: Token expiry comparison assumes clocks are in sync; distributed
-   deployments may reject valid tokens prematurely.
+2. **Missing circuit breaker on retry loop** — `api/client.py:87`
+   Why it matters: Under sustained upstream failure, every request retries 5 times
+   with backoff, multiplying latency and connection pool pressure.
    Evidence: Code inspection (finding-synthesizer)
    Suggested action: discuss
 
 ### Unresolved Assumptions
-- What is the acceptable clock-skew window for this deployment environment?
+- What is the upstream service's timeout and rate limit for this endpoint?
 
 ### Recommended Review Focus
-- `auth/session.py` lines 87–120: expiry logic and the uncovered failure branch
-  are the highest-risk hunks; verify behaviour under clock drift and network
-  timeout conditions.
+- `api/client.py` lines 87–120: retry loop and the uncovered exhaustion branch
+  are the highest-risk hunks; verify behaviour under sustained upstream failure
+  and concurrent request load.
 
 ### Metadata
 - reviewer mode: fresh_eyes
