@@ -1,5 +1,7 @@
 # tessl-labs/pr-review-guardrails
 
+[![tessl](https://img.shields.io/endpoint?url=https%3A%2F%2Fapi.tessl.io%2Fv1%2Fbadges%2Ftessl-labs%2Fpr-review-guardrails)](https://tessl.io/registry/tessl-labs/pr-review-guardrails)
+
 Evidence-first pull request review. Builds a dossier, classifies risk, hands a structured brief to a human who makes the call.
 
 ## Why
