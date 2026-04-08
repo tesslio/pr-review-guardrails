@@ -1,0 +1,17 @@
+name: Publish tile
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: tesslio/tessl-smart-publish@v1
+        with:
+          token: ${{ secrets.TESSL_TOKEN }}
